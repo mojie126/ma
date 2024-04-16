@@ -3049,7 +3049,7 @@ cp -f ${MINGW_PREFIX}/lib/libtheoradec.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libchromaprint.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libmodplug.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libvpl.a ${LOCALDESTDIR}/lib
-rm -rf ${MINGW_PREFIX}/lib/frei0r-1
+rm -rf ${LOCALDESTDIR}/lib/frei0r-1
 do_simple_print -p "${green}Compilation successful.${reset}"
 do_simple_print -p "${green}This window will close automatically in 5 seconds.${reset}"
 sleep 5
