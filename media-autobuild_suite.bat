@@ -1944,6 +1944,8 @@ goto :EOF
     echo.export CCACHE_DIR="${LOCALBUILDDIR}/cache"
     echo.
     echo.export PYTHONPATH=
+    echo.export http_proxy=http://127.0.0.1:7890
+    echo.export https_proxy=http://127.0.0.1:7890
     echo.
     echo.LANG=zh_CN.UTF-8
     echo.PATH="${MINGW_PREFIX}/bin:${INFOPATH}:${MSYS2_PATH}:${ORIGINAL_PATH}"

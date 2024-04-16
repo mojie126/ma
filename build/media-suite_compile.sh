@@ -2038,9 +2038,9 @@ if { { [[ $mpv != n ]]  && ! mpv_disabled libplacebo; } ||
      { [[ $ffmpeg != no ]] && enabled libplacebo; } } ||
      ! mpv_disabled shaderc &&
     do_vcs "$SOURCE_REPO_SHADERC"; then
-    do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/shaderc/0001-third_party-set-INSTALL-variables-as-cache.patch" am
+#    do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/shaderc/0001-third_party-set-INSTALL-variables-as-cache.patch" am
     do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/shaderc/0002-shaderc_util-add-install.patch" am
-    do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/shaderc/0003-cmake-correct-PYTHON-Python.patch" am
+#    do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/shaderc/0003-cmake-correct-PYTHON-Python.patch" am
     do_uninstall "${_check[@]}" include/shaderc include/libshaderc_util
 
     log dependencies /usr/bin/python ./utils/git-sync-deps
@@ -2098,6 +2098,7 @@ if [[ $ffmpeg != no ]]; then
     enabled libcaca && do_addOption --extra-cflags=-DCACA_STATIC && do_pacman_install libcaca
     enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug
     enabled libopenjpeg && do_pacman_install openjpeg2
+	enabled libvpl && do_pacman_install libvpl
     if enabled libopenh264; then
         # We use msys2's package for the header and import library so we don't build it, for licensing reasons
         do_pacman_install openh264
@@ -2201,12 +2202,20 @@ if [[ $ffmpeg != no ]]; then
             do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/ffmpeg/0001-configure-deduplicate-linking-flags.patch" am
         fi
 
+		do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/386c19581166ade6edfe1c36ed5dda5fb7170ff5/ffmpeg/0001-glslang-Remove-HLSL-and-OGLCompiler-libraries.patch" am
+
         # Fix for libjxl changes that removes including version.h from decode.h
         grep_or_sed jxl/version.h libavcodec/libjxl.h 's;#include <jxl/decode.h>;#include <jxl/version.h>\n&;'
 
         _patches=$(git rev-list origin/master.. --count)
         [[ $_patches -gt 0 ]] &&
             do_addOption "--extra-version=g$(git rev-parse --short origin/master)+$_patches"
+
+        do_addOption --enable-cross-compile --arch=x86_64 --target-os=mingw32
+        do_addOption --cc=x86_64-w64-mingw32-gcc --cxx=x86_64-w64-mingw32-g++ --ar=x86_64-w64-mingw32-gcc-ar --ranlib=x86_64-w64-mingw32-gcc-ranlib --nm=x86_64-w64-mingw32-gcc-nm
+        #do_addOption --extra-cflags=-DHAVE_FCNTL=0 --extra-cflags=-DHAVE_MMAP=0 --extra-cflags=-DHAVE_SYSCTL=0 --extra-cflags=-DHAVE_STRERROR_R=0
+        do_pacman_install mimalloc
+        do_addOption --custom-allocator=mimalloc
 
         _uninstall=(include/libav{codec,device,filter,format,util,resample}
             include/lib{sw{scale,resample},postproc}
@@ -2260,6 +2269,15 @@ if [[ $ffmpeg != no ]]; then
         # static
         if [[ ! $ffmpeg =~ shared ]] && _check=(libavutil.{a,pc}); then
             do_print_progress "Compiling ${bold}static${reset} FFmpeg"
+
+			if [[ $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git#branch=release/6.1" ]]; then
+				sed -i '1211a\while ! rm -f $TMPE; do sleep 1; done' configure
+			elif [[ $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git#branch=release/7.0" ]]; then
+				sed -i '1222a\while ! rm -f $TMPE; do sleep 1; done' configure
+			elif [[ $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git#branch=master" || $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git" ]]; then
+				sed -i '1224a\while ! rm -f $TMPE; do sleep 1; done' configure
+			fi
+
             [[ -f config.mak ]] && log "distclean" make distclean
             if ! disabled_any programs avcodec avformat; then
                 if ! disabled swresample; then
@@ -3030,6 +3048,8 @@ cp -f ${MINGW_PREFIX}/lib/libtheoraenc.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libtheoradec.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libchromaprint.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libmodplug.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libvpl.a ${LOCALDESTDIR}/lib
+rm -rf ${MINGW_PREFIX}/lib/frei0r-1
 do_simple_print -p "${green}Compilation successful.${reset}"
 do_simple_print -p "${green}This window will close automatically in 5 seconds.${reset}"
 sleep 5
