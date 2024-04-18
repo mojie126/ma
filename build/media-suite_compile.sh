@@ -3050,6 +3050,9 @@ cp -f ${MINGW_PREFIX}/lib/libchromaprint.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libmodplug.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libvpl.a ${LOCALDESTDIR}/lib
 rm -rf ${LOCALDESTDIR}/lib/frei0r-1
+rm -rf ${LOCALDESTDIR}/lib/cmake
+find ${LOCALDESTDIR}/lib/ -name "*.dll" | xargs rm -f
+find ${LOCALDESTDIR}/lib/ -name "*.dll.a" | xargs rm -f
 do_simple_print -p "${green}Compilation successful.${reset}"
 do_simple_print -p "${green}This window will close automatically in 5 seconds.${reset}"
 sleep 5
