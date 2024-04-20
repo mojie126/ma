@@ -110,5 +110,5 @@
 --enable-opencl
 --enable-opengl
 --enable-cuda-nvcc
-#--enable-libnpp
+--enable-libnpp
 --enable-libopenh264
