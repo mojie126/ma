@@ -2098,8 +2098,7 @@ if [[ $ffmpeg != no ]]; then
     enabled libopenjpeg && do_pacman_install openjpeg2
 	enabled libvpl && do_pacman_install libvpl
 	\cp -rf /build/libnpp/lib/ ${LOCALDESTDIR}/
-#	\cp -rf /build/libnpp/include/ ${LOCALDESTDIR}/
-	find /build/libnpp/include/ -name 'npp*' -exec \cp -rf {} ${LOCALDESTDIR}/ \;
+	\cp -rf /build/libnpp/include/ ${LOCALDESTDIR}/
     if enabled libopenh264; then
         # We use msys2's package for the header and import library so we don't build it, for licensing reasons
         do_pacman_install openh264
