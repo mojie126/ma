@@ -2054,9 +2054,9 @@ clean_suite() {
     unix2dos -n newchangelog CHANGELOG.txt 2> /dev/null && rm -f newchangelog
 }
 
-create_diagnostic() {
-    local cmd cmds=("uname -a" "pacman -Qe" "pacman -Qd")
-    local _env envs=(MINGW_{PACKAGE_PREFIX,CHOST,PREFIX} MSYSTEM CPATH
+create_diagnostic() (
+    cmds=("uname -a" "pacman -Qe" "pacman -Qd")
+    envs=(MINGW_{PACKAGE_PREFIX,CHOST,PREFIX} MSYSTEM CPATH
         LIBRARY_PATH {LD,C,CPP,CXX}FLAGS PATH)
     do_print_progress "  Creating diagnostics file"
     git -C /trunk rev-parse --is-inside-work-tree > /dev/null 2>&1 &&
@@ -2064,14 +2064,14 @@ create_diagnostic() {
     {
         echo "Env variables:"
         for _env in "${envs[@]}"; do
-            printf '\t%s=%s\n' "$_env" "${!_env}"
+            declare -p "$_env" 2> /dev/null
         done
-        echo
         for cmd in "${cmds[@]}"; do
-            printf '\t%s\n%s\n\n' "$cmd": "$($cmd)"
+            echo
+            (set -x; $cmd)
         done
-    } > "$LOCALBUILDDIR/diagnostics.txt"
-}
+    } > "$LOCALBUILDDIR/diagnostics.txt" 2>&1
+)
 
 create_winpty_exe() {
     local exename="$1"
@@ -2281,41 +2281,6 @@ grep_and_sed() {
 
     /usr/bin/grep -q -- "$grep_re" "$grep_file" &&
         /usr/bin/sed -ri -- "$sed_re" "${sed_files[@]}"
-}
-
-compare_with_zeranoe() {
-    local comparison="${1:-builtin}"
-    local zeranoebase="https://ffmpeg.zeranoe.com/builds/readme"
-    local zeranoe32 zeranoe64
-    zeranoe32="$(curl -s "${zeranoebase}"/win32/static/ffmpeg-latest-win32-static-readme.txt |
-        sed -n '/Configuration/,/Libraries/{/\s*--/{s/\s*//gp}}' | sort)"
-    zeranoe64="$(curl -s "${zeranoebase}"/win64/static/ffmpeg-latest-win64-static-readme.txt |
-        sed -n '/Configuration/,/Libraries/{/\s*--/{s/\s*//gp}}' | sort)"
-    local localopts32=""
-    local localopts64=""
-    if [[ $comparison == "custom" ]]; then
-        local custom32="$LOCALBUILDDIR/ffmpeg_options_32bit.txt"
-        local custom64="$LOCALBUILDDIR/ffmpeg_options_64bit.txt"
-        local custom="$LOCALBUILDDIR/ffmpeg_options.txt"
-        [[ -f $custom32 ]] || custom32="$custom"
-        [[ -f $custom64 ]] || custom64="$custom"
-        if [[ -f $custom32 ]]; then
-            IFS=$'\n' read -d '' -r localopts32 < <(do_readoptionsfile "$custom32")
-        fi
-        if [[ -f $custom64 ]]; then
-            IFS=$'\n' read -d '' -r localopts64 < <(do_readoptionsfile "$custom64")
-        fi
-    else
-        IFS=$'\r\n' read -d '' -r -a bat < /trunk/media-autobuild_suite.bat
-        localopts32="$(do_readbatoptions "ffmpeg_options_(builtin|basic|zeranoe)" | sort)"
-        localopts64="$localopts32"
-    fi
-    echo "Missing options from zeranoe 32-bits in $comparison options:"
-    comm -23 <(echo "$zeranoe32") <(echo "$localopts32")
-    printf '\n'
-    echo "Missing options from zeranoe 64-bits in $comparison options:"
-    comm -23 <(echo "$zeranoe64") <(echo "$localopts64")
-    printf '\n'
 }
 
 fix_cmake_crap_exports() {
