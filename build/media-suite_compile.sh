@@ -3052,6 +3052,12 @@ cp -f ${MINGW_PREFIX}/lib/libtheoradec.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libchromaprint.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libmodplug.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libvpl.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcdio_paranoia.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcdio_cdda.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcdio.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcaca.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libdeflate.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libjpeg.a ${LOCALDESTDIR}/lib
 rm -rf ${LOCALDESTDIR}/lib/frei0r-1
 rm -rf ${LOCALDESTDIR}/lib/cmake
 \cp -rf /build/libnpp/lib/ ${LOCALDESTDIR}/
