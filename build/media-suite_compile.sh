@@ -1118,14 +1118,7 @@ if { [[ $dav1d = y ]] || [[ $libavif = y ]] || { [[ $ffmpeg != no ]] && enabled 
     do_checkIfExist
 fi
 
-_check=(/opt/cargo/bin/cargo-c{build,api}.exe)
-if { enabled librav1e || [[ $libavif = y ]]; } &&
-    do_vcs "$SOURCE_REPO_CARGOC"; then
-    # Delete any old cargo-cbuilds
-    [[ -x /opt/cargo/bin/cargo-cbuild.exe ]] && log uninstall.cargo-c cargo uninstall -q cargo-c
-    do_rustinstall
-    do_checkIfExist
-fi
+{ enabled librav1e || [[ $libavif = y ]]; } && do_pacman_install cargo-c
 
 _check=()
 { [[ $rav1e = y ]] ||
@@ -1194,7 +1187,6 @@ _check=(libkvazaar.{,l}a kvazaar.pc kvazaar.h)
 if { [[ $other265 = y ]] || { [[ $ffmpeg != no ]] && enabled libkvazaar; }; } &&
     do_vcs "$SOURCE_REPO_LIBKVAZAAR"; then
     do_patch "https://github.com/m-ab-s/mabs-patches/raw/master/kvazaar/0001-Mingw-w64-Re-enable-avx2.patch" am
-    do_patch "https://github.com/ultravideo/kvazaar/pull/407.patch" am
     do_uninstall kvazaar_version.h "${_check[@]}"
     do_autogen
     [[ $standalone = y || $other265 = y ]] ||
@@ -2627,7 +2619,9 @@ if [[ $cyanrip = y ]]; then
     if do_vcs "$SOURCE_REPO_LIBMUSICBRAINZ"; then
         do_patch "https://github.com/metabrainz/libmusicbrainz/compare/master...wiiaboo:libmusicbrainz:master.patch" am
         do_uninstall "${_check[@]}" include/musicbrainz5
-        LIBRARY_PATH="$(cygpath -pm "$LOCALDESTDIR/lib:$MINGW_PREFIX/lib")" do_cmakeinstall
+        CXXFLAGS+=" $($PKG_CONFIG --cflags libxml-2.0)" \
+            LDFLAGS+=" $($PKG_CONFIG --libs libxml-2.0)" \
+            do_cmakeinstall
         do_checkIfExist
     fi
 
