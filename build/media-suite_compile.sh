@@ -2195,6 +2195,7 @@ if [[ $ffmpeg != no ]]; then
         #do_addOption --extra-cflags=-DHAVE_FCNTL=0 --extra-cflags=-DHAVE_MMAP=0 --extra-cflags=-DHAVE_SYSCTL=0 --extra-cflags=-DHAVE_STRERROR_R=0
         do_pacman_install mimalloc
         do_addOption --custom-allocator=mimalloc
+		mv ${MINGW_PREFIX}/lib/libmimalloc-static.a ${LOCALDESTDIR}/lib/libmimalloc.a
 
         _uninstall=(include/libav{codec,device,filter,format,util,resample}
             include/lib{sw{scale,resample},postproc}
