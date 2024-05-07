@@ -2172,19 +2172,6 @@ if [[ $ffmpeg != no ]]; then
             # remove redundant -L and -l flags from extralibs
             do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/ffmpeg/0001-configure-deduplicate-linking-flags.patch" am
         fi
-        # Removes hardcoding of libstdc++ for clang
-        do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/ffmpeg/0001-configure-strip-hardcoded-lstdc.patch" am
-
-        # Removes hardcoding of -lstdc++ and -lc++ from the .pc files
-        if [[ $CC == *clang* ]]; then
-            find "$MINGW_PREFIX/lib/pkgconfig" "$LOCALDESTDIR/lib/pkgconfig" -name '*.pc' -exec grep -q -- -lstdc++ {} \; -exec sed -i 's;-lstdc++;;g' {} +
-            find "$MINGW_PREFIX/lib/pkgconfig" "$LOCALDESTDIR/lib/pkgconfig" -name '*.pc' -exec grep -q -- -lc++ {} \; -exec sed -i 's;-lc++;;g' {} +
-        fi
-
-		do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/386c19581166ade6edfe1c36ed5dda5fb7170ff5/ffmpeg/0001-glslang-Remove-HLSL-and-OGLCompiler-libraries.patch" am
-
-        # Fix for libjxl changes that removes including version.h from decode.h
-        grep_or_sed jxl/version.h libavcodec/libjxl.h 's;#include <jxl/decode.h>;#include <jxl/version.h>\n&;'
 
         _patches=$(git rev-list origin/master.. --count)
         [[ $_patches -gt 0 ]] &&
