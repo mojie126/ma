@@ -1,0 +1,26 @@
+name: C/C++ CI
+
+on: [ workflow_dispatch ]
+
+jobs:
+    build:
+
+        runs-on: windows-latest
+
+        steps:
+            -   uses: actions/checkout@v2
+            -   name: build
+                shell: cmd
+                run: media-autobuild_suite.bat
+            -   name: copy
+                shell: cmd
+                run: |
+                    cmake -E copy bin-video\ffmpeg.exe dist\ffmpeg.exe
+                    cmake -E rd /s/q lib\frei0r-1
+                    cmake -E xcopy include dist\include
+                    cmake -E xcopy lib dist\lib
+            -   name: upload
+                uses: actions/upload-artifact@v2
+                with:
+                    name: FFmpeg_static_lib
+                    path: dist

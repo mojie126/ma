@@ -809,11 +809,11 @@ if [0]==[%ffmpegPathINI%] (
     echo.
     echo. Using default ffmpeg source path: https://git.ffmpeg.org/ffmpeg.git
     echo.
-    echo. If you want to use a custom source repository, add a line like this 
+    echo. If you want to use a custom source repository, add a line like this
     echo. to media-autobuild_suite.ini:
     echo.
     echo.     ffmpegPath=https://github.com/username/FFmpeg.git#branch=branchname
-    echo. 
+    echo.
     echo. or for a local repository like:
     echo.
     echo.     ffmpegPath=../myrepos/ffmpeg
@@ -1822,7 +1822,7 @@ if exist %instdir%\msys64\etc\profile.pacnew ^
     echo.esac
     echo.case $- in
     echo.*i*^) ;;
-    echo.*^) export LANG=en_US.UTF-8 ;;
+    echo.*^) export LANG=zh_CN.UTF-8 ;;
     echo.esac
 )>%instdir%\msys64\etc\profile.d\Zab-suite.sh
 
@@ -1908,11 +1908,11 @@ goto :EOF
     echo.alias dir='ls -la --color=auto'
     echo.alias ls='ls --color=auto'
     if %CC%==clang (
-        echo.export CC="ccache clang"
-        echo.export CXX="ccache clang++"
+        echo.export CC="clang"
+        echo.export CXX="clang++"
     ) else (
-        echo.export CC="ccache gcc"
-        echo.export CXX="ccache g++"
+        echo.export CC="gcc"
+        echo.export CXX="g++"
     )
     echo.
     echo.CARCH="${MINGW_CHOST%%%%-*}"
@@ -1953,8 +1953,10 @@ goto :EOF
     echo.export CCACHE_DIR="${LOCALBUILDDIR}/cache"
     echo.
     echo.export PYTHONPATH=
+    echo.export http_proxy=http://127.0.0.1:7890
+    echo.export https_proxy=http://127.0.0.1:7890
     echo.
-    echo.LANG=en_US.UTF-8
+    echo.LANG=zh_CN.UTF-8
     echo.PATH="${MINGW_PREFIX}/bin:${INFOPATH}:${MSYS2_PATH}:${ORIGINAL_PATH}"
     echo.PATH="${LOCALDESTDIR}/bin-audio:${LOCALDESTDIR}/bin-global:${LOCALDESTDIR}/bin-video:${LOCALDESTDIR}/bin:${PATH}"
     echo.PATH="/opt/bin:${PATH}"

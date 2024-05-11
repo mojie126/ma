@@ -1141,9 +1141,9 @@ if { [[ $rav1e = y ]] || [[ $libavif = y ]] || enabled librav1e; } &&
     if [[ $libavif = y ]] || enabled librav1e; then
         rm -f "$CARGO_HOME/config" 2> /dev/null
         PKG_CONFIG="$LOCALDESTDIR/bin/ab-pkg-config-static.bat" \
-            CC="ccache clang" \
-            CXX="ccache clang++" \
-            log "install-rav1e-c" cargo capi install \
+            CC="clang" \
+            CXX="clang++" \
+            log "install-rav1e-c" "$RUSTUP_HOME/bin/cargo.exe" capi install \
             --release --jobs "$cpuCount" --prefix="$LOCALDESTDIR" \
             --destdir="$PWD/install-$bits"
 
@@ -2067,38 +2067,41 @@ if [[ $ffmpeg != no ]]; then
     enabled libcaca && do_addOption --extra-cflags=-DCACA_STATIC && do_pacman_install libcaca
     enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug
     enabled libopenjpeg && do_pacman_install openjpeg2
+	enabled libvpl && do_pacman_install libvpl
+	\cp -rf /build/libnpp/lib/ $MINGW_PREFIX/
+	\cp -rf /build/libnpp/include/ $MINGW_PREFIX/
     if enabled libopenh264; then
         # We use msys2's package for the header and import library so we don't build it, for licensing reasons
         do_pacman_install openh264
-        if [[ -f $MINGW_PREFIX/lib/libopenh264.dll.a.dyn ]]; then
-            # backup the static library
-            mv -f "$MINGW_PREFIX"/lib/libopenh264.a{,.bak}
-            # use the import library as a phony static library, as mpv doesn't look for .dll.a
-            mv -f "$MINGW_PREFIX"/lib/libopenh264.{dll.a.dyn,a}
-        fi
-        [[ -f $MINGW_PREFIX/lib/libopenh264.dll.a ]] && mv -f "$MINGW_PREFIX"/lib/libopenh264.{dll.,}a
-        _openh264_ver=2.4.1
-        _pacman_openh264_ver=$(pacman -Q "${MINGW_PACKAGE_PREFIX}-openh264" | awk '{print $2}')
-        if [[ $(vercmp.exe $_openh264_ver "$_pacman_openh264_ver") -ne 0 ]]; then
-            do_simple_print "${orange}Openh264 version differs from msys2's, current: $_openh264_ver, msys2: $_pacman_openh264_ver${reset}"
-            do_simple_print "${orange}Check if this is the latest suite and update if possible, else open an issue${reset}"
-        fi
-        if test_newer "$MINGW_PREFIX"/lib/libopenh264.dll.a "$LOCALDESTDIR/bin-video/libopenh264-7.dll" ||
-            ! get_dll_version "$LOCALDESTDIR/bin-video/libopenh264-7.dll" | grep -q "$_openh264_ver"; then
-            pushd "$LOCALDESTDIR/bin-video" >/dev/null || do_exit_prompt "Did you delete the bin-video folder?"
-            if [[ $bits = 64bit ]]; then
-                _sha256=c0df66e90d46c688558d5697c845886839c918b8253b86425bcde6be0d871f13
-            else
-                _sha256=5aaf0bcebc0bb510130c4fb14fb7694bfd5597be0a5e101c01a35f07c594e482
-            fi
-            do_wget -c -r -q -h $_sha256 \
-            "http://ciscobinary.openh264.org/openh264-${_openh264_ver}-win${bits%bit}.dll.bz2" \
-                libopenh264.dll.bz2
-            [[ -f libopenh264.dll.bz2 ]] && bunzip2 -f libopenh264.dll.bz2
-            mv -f libopenh264.dll libopenh264-7.dll
-            popd >/dev/null || do_exit_prompt "Did you delete the previous folder?"
-        fi
-        unset _sha256 _openh264_ver
+#        if [[ -f $MINGW_PREFIX/lib/libopenh264.dll.a.dyn ]]; then
+#            # backup the static library
+#            mv -f "$MINGW_PREFIX"/lib/libopenh264.a{,.bak}
+#            # use the import library as a phony static library, as mpv doesn't look for .dll.a
+#            mv -f "$MINGW_PREFIX"/lib/libopenh264.{dll.a.dyn,a}
+#        fi
+#        [[ -f $MINGW_PREFIX/lib/libopenh264.dll.a ]] && mv -f "$MINGW_PREFIX"/lib/libopenh264.{dll.,}a
+#        _openh264_ver=2.4.1
+#        _pacman_openh264_ver=$(pacman -Q "${MINGW_PACKAGE_PREFIX}-openh264" | awk '{print $2}')
+#        if [[ $(vercmp.exe $_openh264_ver "$_pacman_openh264_ver") -ne 0 ]]; then
+#            do_simple_print "${orange}Openh264 version differs from msys2's, current: $_openh264_ver, msys2: $_pacman_openh264_ver${reset}"
+#            do_simple_print "${orange}Check if this is the latest suite and update if possible, else open an issue${reset}"
+#        fi
+#        if test_newer "$MINGW_PREFIX"/lib/libopenh264.dll.a "$LOCALDESTDIR/bin-video/libopenh264-7.dll" ||
+#            ! get_dll_version "$LOCALDESTDIR/bin-video/libopenh264-7.dll" | grep -q "$_openh264_ver"; then
+#            pushd "$LOCALDESTDIR/bin-video" >/dev/null || do_exit_prompt "Did you delete the bin-video folder?"
+#            if [[ $bits = 64bit ]]; then
+#                _sha256=c0df66e90d46c688558d5697c845886839c918b8253b86425bcde6be0d871f13
+#            else
+#                _sha256=5aaf0bcebc0bb510130c4fb14fb7694bfd5597be0a5e101c01a35f07c594e482
+#            fi
+#            do_wget -c -r -q -h $_sha256 \
+#            "http://ciscobinary.openh264.org/openh264-${_openh264_ver}-win${bits%bit}.dll.bz2" \
+#                libopenh264.dll.bz2
+#            [[ -f libopenh264.dll.bz2 ]] && bunzip2 -f libopenh264.dll.bz2
+#            mv -f libopenh264.dll libopenh264-7.dll
+#            popd >/dev/null || do_exit_prompt "Did you delete the previous folder?"
+#        fi
+#        unset _sha256 _openh264_ver
     fi
     enabled chromaprint && do_addOption --extra-cflags=-DCHROMAPRINT_NODLL &&
         { do_pacman_remove fftw; do_pacman_install chromaprint; }
@@ -2174,6 +2177,13 @@ if [[ $ffmpeg != no ]]; then
         [[ $_patches -gt 0 ]] &&
             do_addOption "--extra-version=g$(git rev-parse --short origin/master)+$_patches"
 
+        do_addOption --enable-cross-compile --arch=x86_64 --target-os=mingw32
+        do_addOption --cc=x86_64-w64-mingw32-gcc --cxx=x86_64-w64-mingw32-g++ --ar=x86_64-w64-mingw32-gcc-ar --ranlib=x86_64-w64-mingw32-gcc-ranlib --nm=x86_64-w64-mingw32-gcc-nm
+        #do_addOption --extra-cflags=-DHAVE_FCNTL=0 --extra-cflags=-DHAVE_MMAP=0 --extra-cflags=-DHAVE_SYSCTL=0 --extra-cflags=-DHAVE_STRERROR_R=0
+        do_pacman_install mimalloc
+        do_addOption --custom-allocator=mimalloc
+		mv ${MINGW_PREFIX}/lib/libmimalloc-static.a ${LOCALDESTDIR}/lib/libmimalloc.a
+
         _uninstall=(include/libav{codec,device,filter,format,util,resample}
             include/lib{sw{scale,resample},postproc}
             libav{codec,device,filter,format,util,resample}.{dll.a,a,pc}
@@ -2226,6 +2236,15 @@ if [[ $ffmpeg != no ]]; then
         # static
         if [[ ! $ffmpeg =~ shared ]] && _check=(libavutil.{a,pc}); then
             do_print_progress "Compiling ${bold}static${reset} FFmpeg"
+
+			if [[ $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git#branch=release/6.1" ]]; then
+				sed -i '1211a\while ! rm -f $TMPE; do sleep 1; done' configure
+			elif [[ $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git#branch=release/7.0" ]]; then
+				sed -i '1222a\while ! rm -f $TMPE; do sleep 1; done' configure
+			elif [[ $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git#branch=master" || $ffmpegPath == "https://git.ffmpeg.org/ffmpeg.git" ]]; then
+				sed -i '1224a\while ! rm -f $TMPE; do sleep 1; done' configure
+			fi
+
             [[ -f config.mak ]] && log "distclean" make distclean
             if ! disabled_any programs avcodec avformat; then
                 if ! disabled swresample; then
@@ -2518,7 +2537,7 @@ if [[ $mpv != n ]] && pc_exists libavcodec libavformat libswscale libavfilter; t
         extra_script post configure
 
         replace="LIBPATH_lib\1 = ['${LOCALDESTDIR}/lib','${MINGW_PREFIX}/lib']"
-        sed -r -i "s:LIBPATH_lib(ass|av(|device|filter)) = .*:$replace:g" ./build/c4che/_cache.py	
+        sed -r -i "s:LIBPATH_lib(ass|av(|device|filter)) = .*:$replace:g" ./build/c4che/_cache.py
 
         extra_script pre build
         WAF_NO_PREFORK=1 \
@@ -2977,6 +2996,40 @@ if [[ -f $LOCALBUILDDIR/post_suite.sh ]]; then
     do_simple_print -p "${green}Executing post_suite.sh${reset}"
     source "$LOCALBUILDDIR"/post_suite.sh || true
 fi
+cp -f ${MINGW_PREFIX}/lib/libopenjp2.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libopenh264.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcjson.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libzmq.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libtwolame.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/liblcms2_fast_float.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/liblcms2.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libsodium.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libxvidcore.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libnettle.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libhogweed.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libsnappy.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libmp3lame.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libtasn1.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libopencore-amrwb.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libopencore-amrnb.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libgsm.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libtheoraenc.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libtheoradec.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libchromaprint.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libmodplug.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libvpl.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcdio_paranoia.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcdio_cdda.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcdio.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libcaca.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libdeflate.a ${LOCALDESTDIR}/lib
+cp -f ${MINGW_PREFIX}/lib/libjpeg.a ${LOCALDESTDIR}/lib
+rm -rf ${LOCALDESTDIR}/lib/frei0r-1
+rm -rf ${LOCALDESTDIR}/lib/cmake
+\cp -rf /build/libnpp/lib/ ${LOCALDESTDIR}/
+find /build/libnpp/include/ -name 'npp*' -exec \cp -rf {} ${LOCALDESTDIR}/include/ \;
+find ${LOCALDESTDIR}/lib/ -name "*.dll" | xargs rm -f
+find ${LOCALDESTDIR}/lib/ -name "*.dll.a" | xargs rm -f
 do_simple_print -p "${green}Compilation successful.${reset}"
 do_simple_print -p "${green}This window will close automatically in 5 seconds.${reset}"
 sleep 5
