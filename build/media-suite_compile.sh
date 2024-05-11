@@ -1143,7 +1143,7 @@ if { [[ $rav1e = y ]] || [[ $libavif = y ]] || enabled librav1e; } &&
         PKG_CONFIG="$LOCALDESTDIR/bin/ab-pkg-config-static.bat" \
             CC="clang" \
             CXX="clang++" \
-            log "install-rav1e-c" "$RUSTUP_HOME/bin/cargo.exe" capi install \
+            log "install-rav1e-c" "${MINGW_PREFIX}/bin/cargo.exe" capi install \
             --release --jobs "$cpuCount" --prefix="$LOCALDESTDIR" \
             --destdir="$PWD/install-$bits"
 
@@ -2068,8 +2068,8 @@ if [[ $ffmpeg != no ]]; then
     enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug
     enabled libopenjpeg && do_pacman_install openjpeg2
 	enabled libvpl && do_pacman_install libvpl
-	\cp -rf /build/libnpp/lib/ $MINGW_PREFIX/
-	\cp -rf /build/libnpp/include/ $MINGW_PREFIX/
+#	\cp -rf /build/libnpp/lib/ $MINGW_PREFIX/
+#	\cp -rf /build/libnpp/include/ $MINGW_PREFIX/
     if enabled libopenh264; then
         # We use msys2's package for the header and import library so we don't build it, for licensing reasons
         do_pacman_install openh264
@@ -3026,8 +3026,8 @@ cp -f ${MINGW_PREFIX}/lib/libdeflate.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libjpeg.a ${LOCALDESTDIR}/lib
 rm -rf ${LOCALDESTDIR}/lib/frei0r-1
 rm -rf ${LOCALDESTDIR}/lib/cmake
-\cp -rf /build/libnpp/lib/ ${LOCALDESTDIR}/
-find /build/libnpp/include/ -name 'npp*' -exec \cp -rf {} ${LOCALDESTDIR}/include/ \;
+#\cp -rf /build/libnpp/lib/ ${LOCALDESTDIR}/
+#find /build/libnpp/include/ -name 'npp*' -exec \cp -rf {} ${LOCALDESTDIR}/include/ \;
 find ${LOCALDESTDIR}/lib/ -name "*.dll" | xargs rm -f
 find ${LOCALDESTDIR}/lib/ -name "*.dll.a" | xargs rm -f
 do_simple_print -p "${green}Compilation successful.${reset}"
