@@ -28,11 +28,10 @@ jobs:
                 shell: cmd
                 run: |
                     cmake -E copy bin-video\ffmpeg.exe dist\ffmpeg.exe
-                    cmake -E rd /s/q lib\frei0r-1
                     cmake -E xcopy include dist\include
                     cmake -E xcopy lib dist\lib
             -   name: upload
-                uses: actions/upload-artifact@v2
+                uses: actions/upload-artifact@v4
                 with:
                     name: FFmpeg_static_lib
                     path: dist
