@@ -788,7 +788,10 @@ if enabled libopus && do_vcs "$SOURCE_REPO_OPUS"; then
         sha=$(grep dnn/download_model.sh autogen.sh | awk -F'"' '{print $2}')
         model=opus_data-${sha:-735117b}.tar.gz
         pushd . > /dev/null
-        do_wget -r -q -n "https://media.xiph.org/opus/models/$model"
+        if [ ! -e "../$model" ]; then
+        	echo "download $model"
+        	do_wget -r -q -n "https://media.xiph.org/opus/models/$model"
+        fi
         popd > /dev/null || return 1
         ln -s "$LOCALBUILDDIR/$model" .
     )
@@ -1143,7 +1146,7 @@ if { [[ $rav1e = y ]] || [[ $libavif = y ]] || enabled librav1e; } &&
         PKG_CONFIG="$LOCALDESTDIR/bin/ab-pkg-config-static.bat" \
             CC="clang" \
             CXX="clang++" \
-            log "install-rav1e-c" "${MINGW_PREFIX}/bin/cargo.exe" capi install \
+            log "install-rav1e-c" cargo capi install \
             --release --jobs "$cpuCount" --prefix="$LOCALDESTDIR" \
             --destdir="$PWD/install-$bits"
 

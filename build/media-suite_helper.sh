@@ -1407,7 +1407,7 @@ do_rust() {
         return
     PKG_CONFIG_ALL_STATIC=true \
         CC="clang" \
-        log "rust.build" "${MINGW_PREFIX}/bin/cargo.exe" build \
+        log "rust.build" cargo build \
         --target="$CARCH"-pc-windows-gnu \
         --jobs="$cpuCount" "${@:---release}" "${rust_extras[@]}"
     extra_script post rust

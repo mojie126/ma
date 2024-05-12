@@ -55,7 +55,7 @@ SOURCE_REPO_LIBOPENMPT=https://github.com/OpenMPT/openmpt.git#branch=OpenMPT-1.3
 SOURCE_REPO_LIBOPUSENC=https://gitlab.xiph.org/xiph/libopusenc.git
 SOURCE_REPO_LIBPLACEBO=https://code.videolan.org/videolan/libplacebo.git
 SOURCE_REPO_LIBPNG=https://github.com/glennrp/libpng.git
-SOURCE_REPO_LIBRAV1E=https://github.com/xiph/rav1e.git
+SOURCE_REPO_LIBRAV1E=https://github.com/xiph/rav1e.git#branch=0.7
 SOURCE_REPO_LIBRESSL=https://github.com/libressl-portable/portable.git#tag=LATEST
 SOURCE_REPO_LIBRIST=https://code.videolan.org/rist/librist.git
 SOURCE_REPO_LIBRTMP=https://gitlab.com/m-ab-s/rtmpdump.git
