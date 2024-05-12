@@ -1327,6 +1327,8 @@ if [[ $bits = 32bit ]]; then
     do_removeOption --enable-libxavs2
 elif { [[ $avs2 = y ]] || { [[ $ffmpeg != no ]] && enabled libxavs2; }; } &&
     do_vcs "$SOURCE_REPO_XAVS2"; then
+    do_wget -c -r -q "https://raw.githubusercontent.com/mojie126/ma/main/patch/xavs2/0001_xavs2_encoder_parameters.patch" "0001_xavs2_encoder_parameters.patch"
+    git apply "0001_xavs2_encoder_parameters.patch"
     do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/xavs2/0001-encoder-cast-function-pointer-type.patch" am
     cd_safe build/linux
     [[ -f config.mak ]] && log "distclean" make distclean
