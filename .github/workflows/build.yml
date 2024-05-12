@@ -8,7 +8,19 @@ jobs:
         runs-on: windows-latest
 
         steps:
-            -   uses: actions/checkout@v2
+            -   name: set current date
+                id: set_date
+                run: |
+                    date=$(date +'%Y-%m')
+                    echo "date=$date" >> $GITHUB_OUTPUT
+                shell: bash
+            -   name: cache build
+                uses: actions/cache@v4
+                with:
+                    path: D:/a/ma/ma/build
+                    key: ma-build-${{ steps.set_date.outputs.date }}
+                    restore-keys: ma-build-
+            -   uses: actions/checkout@v4
             -   name: build
                 shell: cmd
                 run: media-autobuild_suite.bat
