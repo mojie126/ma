@@ -2074,8 +2074,10 @@ if [[ $ffmpeg != no ]]; then
     enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug
     enabled libopenjpeg && do_pacman_install openjpeg2
 	enabled libvpl && do_pacman_install libvpl
-#	\cp -rf /build/libnpp/lib/ $MINGW_PREFIX/
-#	\cp -rf /build/libnpp/include/ $MINGW_PREFIX/
+	if enabled libnpp; then
+		\cp -rf /build/libnpp/lib/ $MINGW_PREFIX/
+		\cp -rf /build/libnpp/include/ $MINGW_PREFIX/
+	fi
     if enabled libopenh264; then
         # We use msys2's package for the header and import library so we don't build it, for licensing reasons
         do_pacman_install openh264
@@ -3035,8 +3037,10 @@ cp -f ${MINGW_PREFIX}/lib/libdeflate.a ${LOCALDESTDIR}/lib
 cp -f ${MINGW_PREFIX}/lib/libjpeg.a ${LOCALDESTDIR}/lib
 rm -rf ${LOCALDESTDIR}/lib/frei0r-1
 rm -rf ${LOCALDESTDIR}/lib/cmake
-#\cp -rf /build/libnpp/lib/ ${LOCALDESTDIR}/
-#find /build/libnpp/include/ -name 'npp*' -exec \cp -rf {} ${LOCALDESTDIR}/include/ \;
+if enabled libnpp; then
+	\cp -rf /build/libnpp/lib/ ${LOCALDESTDIR}/
+	find /build/libnpp/include/ -name 'npp*' -exec \cp -rf {} ${LOCALDESTDIR}/include/ \;
+fi
 find ${LOCALDESTDIR}/lib/ -name "*.dll" | xargs rm -f
 find ${LOCALDESTDIR}/lib/ -name "*.dll.a" | xargs rm -f
 do_simple_print -p "${green}Compilation successful.${reset}"
