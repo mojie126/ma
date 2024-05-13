@@ -2023,7 +2023,7 @@ if { { [[ $mpv != n ]]  && ! mpv_disabled libplacebo; } ||
     # fix python indentation errors from non-existant code review
     grep -ZRlP --include="*.py" '\t' third_party/spirv-tools/ | xargs -r -0 -n1 sed -i 's;\t;    ;g'
 
-    do_cmakeinstall -GNinja -DSHADERC_SKIP_{TESTS,EXAMPLES}=ON -DSHADERC_ENABLE_WERROR_COMPILE=OFF -DSKIP_{GLSLANG,SPIRV_TOOLS,GOOGLETEST}_INSTALL=ON -DSPIRV_HEADERS_SKIP_{INSTALL,EXAMPLES}=ON
+    do_cmakeinstall -GNinja -DSHADERC_SKIP_{TESTS,EXAMPLES}=ON -DSHADERC_ENABLE_WERROR_COMPILE=OFF -DSKIP_{GLSLANG,GOOGLETEST}_INSTALL=ON -DSPIRV_HEADERS_SKIP_{INSTALL,EXAMPLES}=ON
     do_checkIfExist
     unset add_third_party
 fi
@@ -2071,7 +2071,7 @@ if [[ $ffmpeg != no ]]; then
         grep -ZlER -- "-R/mingw\S+" "$MINGW_PREFIX"/lib/pkgconfig/* | xargs -r -0 sed -ri 's;-R/mingw\S+;;g'
     fi
     enabled libcaca && do_addOption --extra-cflags=-DCACA_STATIC && do_pacman_install libcaca
-    enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug && do_pacman_install libopenmpt-modplug
+    enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug
     enabled libopenjpeg && do_pacman_install openjpeg2
 	enabled libvpl && do_pacman_install libvpl
 #	\cp -rf /build/libnpp/lib/ $MINGW_PREFIX/
