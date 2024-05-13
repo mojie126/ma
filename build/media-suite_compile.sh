@@ -2023,7 +2023,7 @@ if { { [[ $mpv != n ]]  && ! mpv_disabled libplacebo; } ||
     # fix python indentation errors from non-existant code review
     grep -ZRlP --include="*.py" '\t' third_party/spirv-tools/ | xargs -r -0 -n1 sed -i 's;\t;    ;g'
 
-    do_cmakeinstall -GNinja -DSHADERC_SKIP_{TESTS,EXAMPLES}=ON -DSHADERC_ENABLE_WERROR_COMPILE=OFF -DSKIP_{GLSLANG,GOOGLETEST}_INSTALL=ON -DSPIRV_HEADERS_SKIP_{INSTALL,EXAMPLES}=ON
+    do_cmakeinstall -GNinja -DSHADERC_SKIP_{TESTS,EXAMPLES}=ON -DSHADERC_ENABLE_WERROR_COMPILE=OFF -DSKIP_{GLSLANG,SPIRV_TOOLS,GOOGLETEST}_INSTALL=ON -DSPIRV_HEADERS_SKIP_{INSTALL,EXAMPLES}=ON
     do_checkIfExist
     unset add_third_party
 fi
@@ -2071,7 +2071,7 @@ if [[ $ffmpeg != no ]]; then
         grep -ZlER -- "-R/mingw\S+" "$MINGW_PREFIX"/lib/pkgconfig/* | xargs -r -0 sed -ri 's;-R/mingw\S+;;g'
     fi
     enabled libcaca && do_addOption --extra-cflags=-DCACA_STATIC && do_pacman_install libcaca
-    enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug
+    enabled libmodplug && do_addOption --extra-cflags=-DMODPLUG_STATIC && do_pacman_install libmodplug && do_pacman_install libopenmpt-modplug
     enabled libopenjpeg && do_pacman_install openjpeg2
 	enabled libvpl && do_pacman_install libvpl
 #	\cp -rf /build/libnpp/lib/ $MINGW_PREFIX/
@@ -2162,6 +2162,9 @@ if [[ $ffmpeg != no ]]; then
 
         enabled vapoursynth && do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/ffmpeg/0001-Add-Alternative-VapourSynth-demuxer.patch" am
 
+		# fix ERROR: spirv_compiler not found
+        do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/386c19581166ade6edfe1c36ed5dda5fb7170ff5/ffmpeg/0001-glslang-Remove-HLSL-and-OGLCompiler-libraries.patch" am
+
         if enabled openal &&
             pc_exists "openal"; then
             OPENAL_LIBS=$($PKG_CONFIG --libs openal)
@@ -2188,7 +2191,7 @@ if [[ $ffmpeg != no ]]; then
         #do_addOption --extra-cflags=-DHAVE_FCNTL=0 --extra-cflags=-DHAVE_MMAP=0 --extra-cflags=-DHAVE_SYSCTL=0 --extra-cflags=-DHAVE_STRERROR_R=0
         do_pacman_install mimalloc
         do_addOption --custom-allocator=mimalloc
-		mv ${MINGW_PREFIX}/lib/libmimalloc-static.a ${LOCALDESTDIR}/lib/libmimalloc.a
+		cp -f ${MINGW_PREFIX}/lib/libmimalloc-static.a ${LOCALDESTDIR}/lib/libmimalloc.a
 
         _uninstall=(include/libav{codec,device,filter,format,util,resample}
             include/lib{sw{scale,resample},postproc}
