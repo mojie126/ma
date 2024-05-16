@@ -475,6 +475,8 @@ if { { [[ $ffmpeg != no || $standalone = y ]] && enabled libtesseract; } ||
     _check=(libtiff{.a,-4.pc})
     [[ $standalone = y ]] && _check+=(bin-global/tiff{cp,dump,info,set,split}.exe)
     if do_vcs "$SOURCE_REPO_LIBTIFF"; then
+        do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/libtiff/0001-tiffgt-Link-winmm-if-windows.patch" am
+        do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/libtiff/0002-tiffgt-link-gl-after-glut.patch" am
         do_pacman_install libjpeg-turbo xz zlib zstd libdeflate
         do_uninstall lib/cmake/tiff "${_check[@]}"
         extracommands=("-Dtiff-tests=OFF" "-Dtiff-docs=OFF")
@@ -1132,6 +1134,19 @@ if { [[ $rav1e = y ]] || [[ $libavif = y ]] || enabled librav1e; } &&
     do_vcs "$SOURCE_REPO_LIBRAV1E"; then
     do_uninstall "${_check[@]}" include/rav1e
 
+    # We want to hide libgit2 unless we have a static library
+    _libgit2_pc="$MINGW_PACKAGE_PREFIX/lib/pkgconfig/libgit2.pc"
+    if ! [[ -f $MINGW_PACKAGE_PREFIX/lib/libgit2.a ]]; then
+        if  [[ -f $_libgit2_pc ]]; then
+            mv -f "$_libgit2_pc"{,.dyn}
+        fi
+    else
+        if ! [[ -f $_libgit2_pc ]]; then
+            cp -f "$_libgit2_pc"{.dyn,}
+        fi
+    fi
+    unset _libgit2_pc
+
     # standalone binary
     if [[ $rav1e = y || $standalone = y ]]; then
         do_rust --profile release-no-lto
@@ -1327,9 +1342,7 @@ if [[ $bits = 32bit ]]; then
     do_removeOption --enable-libxavs2
 elif { [[ $avs2 = y ]] || { [[ $ffmpeg != no ]] && enabled libxavs2; }; } &&
     do_vcs "$SOURCE_REPO_XAVS2"; then
-    do_wget -c -r -q "https://raw.githubusercontent.com/mojie126/ma/main/patch/xavs2/0001_xavs2_encoder_parameters.patch" "0001_xavs2_encoder_parameters.patch"
-    git apply "0001_xavs2_encoder_parameters.patch"
-    do_patch "https://raw.githubusercontent.com/m-ab-s/mabs-patches/master/xavs2/0001-encoder-cast-function-pointer-type.patch" am
+    do_patch "https://github.com/pkuvcl/xavs2/compare/master...1480c1:xavs2:gcc14/pointerconversion.patch" am
     cd_safe build/linux
     [[ -f config.mak ]] && log "distclean" make distclean
     do_uninstall all "${_check[@]}"
@@ -2536,7 +2549,8 @@ if [[ $mpv != n ]] && pc_exists libavcodec libavformat libswscale libavfilter; t
         fi
 
         extra_script pre configure
-        CFLAGS+=" ${mpv_cflags[*]} -Wno-int-conversion" LDFLAGS+=" ${mpv_ldflags[*]}" \
+        # -Wno-incompatible-pointer-types there until we can move to a newer version of mpv and fix it properly.
+        CFLAGS+=" ${mpv_cflags[*]} -Wno-int-conversion -Wno-incompatible-pointer-types" LDFLAGS+=" ${mpv_ldflags[*]}" \
             RST2MAN="${MINGW_PREFIX}/bin/rst2man" \
             RST2HTML="${MINGW_PREFIX}/bin/rst2html" \
             RST2PDF="${MINGW_PREFIX}/bin/rst2pdf2" \
