@@ -1347,7 +1347,7 @@ do_ninja() {
     extra_script pre ninja
     [[ -f "$(get_first_subdir -f)/do_not_build" ]] &&
         return
-    log "build" ninja "$@"
+    log "build" ninja -j "$(nproc)" "$@"
     extra_script post ninja
 }
 
@@ -1635,7 +1635,7 @@ do_make() {
     extra_script pre make
     [[ -f "$(get_first_subdir -f)/do_not_build" ]] &&
         return
-    log "make" make "$@"
+    log "make" make -j "$(nproc)" "$@"
     extra_script post make
 }
 
